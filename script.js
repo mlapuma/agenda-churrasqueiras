@@ -5,10 +5,12 @@ const bookingList = document.getElementById("bookingList");
 const emptyState = document.getElementById("emptyState");
 const totalReservas = document.getElementById("totalReservas");
 const formMessage = document.getElementById("formMessage");
-const clearButton = document.getElementById("limparReservas");
+const refreshButton = document.getElementById("atualizarReservas");
+const syncStatus = document.getElementById("syncStatus");
 
 const storageKey = "agendaChurrasqueiraReservas";
-let bookings = JSON.parse(localStorage.getItem(storageKey)) || [];
+const appConfig = window.APP_CONFIG || {};
+let bookings = [];
 
 for (let house = 1; house <= 18; house += 1) {
   const option = document.createElement("option");
@@ -19,7 +21,20 @@ for (let house = 1; house <= 18; house += 1) {
 
 dateInput.min = new Date().toISOString().split("T")[0];
 
-function saveBookings() {
+function isSupabaseConfigured() {
+  return Boolean(appConfig.SUPABASE_URL && appConfig.SUPABASE_ANON_KEY);
+}
+
+function getSupabaseHeaders(extraHeaders = {}) {
+  return {
+    apikey: appConfig.SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${appConfig.SUPABASE_ANON_KEY}`,
+    "Content-Type": "application/json",
+    ...extraHeaders
+  };
+}
+
+function saveLocalBookings() {
   localStorage.setItem(storageKey, JSON.stringify(bookings));
 }
 
@@ -42,7 +57,7 @@ function buildMessage(booking) {
   return `Aviso do condominio: ${booking.house} reservou o salao da churrasqueira para o dia ${formatDate(booking.date)}.`;
 }
 
-function createId() {
+function createLocalId() {
   if (window.crypto && crypto.randomUUID) {
     return crypto.randomUUID();
   }
@@ -63,6 +78,59 @@ async function shareBooking(booking) {
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, "_blank");
+}
+
+async function loadBookings() {
+  if (!isSupabaseConfigured()) {
+    bookings = JSON.parse(localStorage.getItem(storageKey)) || [];
+    syncStatus.textContent = "Modo local: configure o banco online para todos verem as mesmas reservas.";
+    renderBookings();
+    return;
+  }
+
+  try {
+    syncStatus.textContent = "Sincronizando reservas online...";
+    const response = await fetch(`${appConfig.SUPABASE_URL}/rest/v1/churrasqueira_reservas?select=id,date,house,created_at&order=date.asc`, {
+      headers: getSupabaseHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error("Nao foi possivel carregar as reservas.");
+    }
+
+    bookings = await response.json();
+    syncStatus.textContent = "Reservas compartilhadas online.";
+    renderBookings();
+  } catch (error) {
+    bookings = JSON.parse(localStorage.getItem(storageKey)) || [];
+    syncStatus.textContent = "Sem conexao com o banco online. Mostrando reservas salvas neste navegador.";
+    renderBookings();
+  }
+}
+
+async function createBooking(booking) {
+  if (!isSupabaseConfigured()) {
+    bookings.push({ ...booking, id: createLocalId() });
+    saveLocalBookings();
+    return bookings[bookings.length - 1];
+  }
+
+  const response = await fetch(`${appConfig.SUPABASE_URL}/rest/v1/churrasqueira_reservas`, {
+    method: "POST",
+    headers: getSupabaseHeaders({ Prefer: "return=representation" }),
+    body: JSON.stringify(booking)
+  });
+
+  if (response.status === 409) {
+    throw new Error("DATA_RESERVADA");
+  }
+
+  if (!response.ok) {
+    throw new Error("NAO_SALVOU");
+  }
+
+  const [createdBooking] = await response.json();
+  return createdBooking;
 }
 
 function renderBookings() {
@@ -88,18 +156,7 @@ function renderBookings() {
     shareButton.textContent = "Avisar";
     shareButton.addEventListener("click", () => shareBooking(booking));
 
-    const removeButton = document.createElement("button");
-    removeButton.type = "button";
-    removeButton.className = "remove-button";
-    removeButton.textContent = "Excluir";
-    removeButton.addEventListener("click", () => {
-      bookings = bookings.filter((itemBooking) => itemBooking.id !== booking.id);
-      saveBookings();
-      renderBookings();
-      showMessage("Reserva removida.");
-    });
-
-    actions.append(shareButton, removeButton);
+    actions.append(shareButton);
     item.append(info, actions);
     bookingList.appendChild(item);
   });
@@ -110,7 +167,7 @@ function showMessage(message, type = "success") {
   formMessage.classList.toggle("error", type === "error");
 }
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const date = dateInput.value;
@@ -129,38 +186,32 @@ form.addEventListener("submit", (event) => {
   }
 
   const booking = {
-    id: createId(),
     date,
     house
   };
 
-  bookings.push(booking);
-  saveBookings();
-  renderBookings();
-  form.reset();
-  dateInput.min = new Date().toISOString().split("T")[0];
-  showMessage(`${house} agendada para ${formatDate(date)}.`);
-  shareBooking(booking).catch(() => {
-    showMessage("Reserva criada. Use o botao Avisar para compartilhar.", "success");
-  });
+  try {
+    const createdBooking = await createBooking(booking);
+    await loadBookings();
+    form.reset();
+    dateInput.min = new Date().toISOString().split("T")[0];
+    showMessage(`${house} agendada para ${formatDate(date)}.`);
+    shareBooking(createdBooking).catch(() => {
+      showMessage("Reserva criada. Use o botao Avisar para compartilhar.", "success");
+    });
+  } catch (error) {
+    if (error.message === "DATA_RESERVADA") {
+      await loadBookings();
+      showMessage("Essa data ja foi reservada por outra casa.", "error");
+      return;
+    }
+
+    showMessage("Nao foi possivel salvar a reserva agora.", "error");
+  }
 });
 
-clearButton.addEventListener("click", () => {
-  if (!bookings.length) {
-    showMessage("Nao ha reservas para limpar.");
-    return;
-  }
-
-  const confirmed = confirm("Deseja apagar todas as reservas?");
-
-  if (!confirmed) {
-    return;
-  }
-
-  bookings = [];
-  saveBookings();
-  renderBookings();
-  showMessage("Lista de reservas limpa.");
+refreshButton.addEventListener("click", () => {
+  loadBookings();
 });
 
-renderBookings();
+loadBookings();
