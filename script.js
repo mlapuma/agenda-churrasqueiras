@@ -7,6 +7,11 @@ const totalReservas = document.getElementById("totalReservas");
 const formMessage = document.getElementById("formMessage");
 const refreshButton = document.getElementById("atualizarReservas");
 const syncStatus = document.getElementById("syncStatus");
+const messageModal = document.getElementById("messageModal");
+const reservationMessage = document.getElementById("mensagemReserva");
+const copyMessageButton = document.getElementById("copiarMensagem");
+const closeMessageButton = document.getElementById("fecharMensagem");
+const okMessageButton = document.getElementById("okMensagem");
 
 const storageKey = "agendaChurrasqueiraReservas";
 const appConfig = window.APP_CONFIG || {};
@@ -59,6 +64,22 @@ function createLocalId() {
   }
 
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function buildReservationMessage(booking) {
+  return `Comunicado Condominio Terra Branca: ${booking.house} reservou o salao da churrasqueira para o dia ${formatDate(booking.date)}.`;
+}
+
+function showReservationMessage(booking) {
+  reservationMessage.value = buildReservationMessage(booking);
+  copyMessageButton.textContent = "Copiar mensagem";
+  messageModal.hidden = false;
+  reservationMessage.focus();
+  reservationMessage.select();
+}
+
+function closeReservationMessage() {
+  messageModal.hidden = true;
 }
 
 async function loadBookings() {
@@ -185,6 +206,8 @@ form.addEventListener("submit", async (event) => {
     return;
   }
 
+  await loadBookings();
+
   const reservedDate = bookings.find((booking) => booking.date === date);
 
   if (reservedDate) {
@@ -198,15 +221,18 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    await createBooking(booking);
+    const createdBooking = await createBooking(booking);
     await loadBookings();
     form.reset();
     dateInput.min = new Date().toISOString().split("T")[0];
     showMessage(`${house} agendada para ${formatDate(date)}.`);
+    showReservationMessage(createdBooking);
   } catch (error) {
     if (error.message === "DATA_RESERVADA") {
       await loadBookings();
-      showMessage("Essa data ja foi reservada por outra casa.", "error");
+      const latestReservedDate = bookings.find((bookingItem) => bookingItem.date === date);
+      const reservedHouse = latestReservedDate ? latestReservedDate.house : "Outra casa";
+      showMessage(`${reservedHouse} ja reservou essa data.`, "error");
       return;
     }
 
@@ -216,6 +242,27 @@ form.addEventListener("submit", async (event) => {
 
 refreshButton.addEventListener("click", () => {
   loadBookings();
+});
+
+copyMessageButton.addEventListener("click", async () => {
+  reservationMessage.select();
+
+  try {
+    await navigator.clipboard.writeText(reservationMessage.value);
+    copyMessageButton.textContent = "Mensagem copiada";
+  } catch (error) {
+    document.execCommand("copy");
+    copyMessageButton.textContent = "Mensagem copiada";
+  }
+});
+
+closeMessageButton.addEventListener("click", closeReservationMessage);
+okMessageButton.addEventListener("click", closeReservationMessage);
+
+messageModal.addEventListener("click", (event) => {
+  if (event.target === messageModal) {
+    closeReservationMessage();
+  }
 });
 
 loadBookings();

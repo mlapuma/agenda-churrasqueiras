@@ -51,6 +51,23 @@
     </section>
   </main>
 
+  <div class="message-modal" id="messageModal" hidden>
+    <div class="message-dialog" role="dialog" aria-modal="true" aria-labelledby="messageTitle">
+      <div class="message-header">
+        <h2 id="messageTitle">Mensagem para o grupo</h2>
+        <button class="icon-button" id="fecharMensagem" type="button" aria-label="Fechar">x</button>
+      </div>
+
+      <label for="mensagemReserva">Copie e envie no grupo do condominio</label>
+      <textarea id="mensagemReserva" rows="5" readonly></textarea>
+
+      <div class="message-actions">
+        <button class="copy-button" id="copiarMensagem" type="button">Copiar mensagem</button>
+        <button class="ghost-button" id="okMensagem" type="button">Concluir</button>
+      </div>
+    </div>
+  </div>
+
   <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
