@@ -210,10 +210,6 @@ button {
 }
 
 .booking-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 14px;
-  align-items: center;
   padding: 16px;
   border: 1px solid var(--border);
   border-left: 5px solid var(--primary);
@@ -228,27 +224,6 @@ button {
 
 .booking-item span {
   color: var(--muted);
-}
-
-.booking-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.share-button,
-.remove-button {
-  min-width: 44px;
-  padding: 0 12px;
-}
-
-.share-button {
-  color: #ffffff;
-  background: var(--primary);
-}
-
-.remove-button {
-  color: #ffffff;
-  background: var(--accent);
 }
 
 .empty-state {
@@ -297,22 +272,11 @@ button {
     padding: 18px;
   }
 
-  .schedule-header,
-  .booking-item {
-    grid-template-columns: 1fr;
-  }
-
   .schedule-header {
     display: grid;
   }
 
-  .ghost-button,
-  .booking-actions {
+  .ghost-button {
     width: 100%;
-  }
-
-  .share-button,
-  .remove-button {
-    flex: 1;
   }
 }

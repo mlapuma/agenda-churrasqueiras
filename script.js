@@ -53,31 +53,12 @@ function sortBookings() {
   });
 }
 
-function buildMessage(booking) {
-  return `Aviso do condominio: ${booking.house} reservou o salao da churrasqueira para o dia ${formatDate(booking.date)}.`;
-}
-
 function createLocalId() {
   if (window.crypto && crypto.randomUUID) {
     return crypto.randomUUID();
   }
 
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
-async function shareBooking(booking) {
-  const message = buildMessage(booking);
-
-  if (navigator.share) {
-    await navigator.share({
-      title: "Reserva da churrasqueira",
-      text: message
-    });
-    return;
-  }
-
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-  window.open(whatsappUrl, "_blank");
 }
 
 async function loadBookings() {
@@ -147,17 +128,7 @@ function renderBookings() {
     const info = document.createElement("div");
     info.innerHTML = `<strong>${booking.house}</strong><span>${formatDate(booking.date)}</span>`;
 
-    const actions = document.createElement("div");
-    actions.className = "booking-actions";
-
-    const shareButton = document.createElement("button");
-    shareButton.type = "button";
-    shareButton.className = "share-button";
-    shareButton.textContent = "Avisar";
-    shareButton.addEventListener("click", () => shareBooking(booking));
-
-    actions.append(shareButton);
-    item.append(info, actions);
+    item.append(info);
     bookingList.appendChild(item);
   });
 }
@@ -191,14 +162,11 @@ form.addEventListener("submit", async (event) => {
   };
 
   try {
-    const createdBooking = await createBooking(booking);
+    await createBooking(booking);
     await loadBookings();
     form.reset();
     dateInput.min = new Date().toISOString().split("T")[0];
     showMessage(`${house} agendada para ${formatDate(date)}.`);
-    shareBooking(createdBooking).catch(() => {
-      showMessage("Reserva criada. Use o botao Avisar para compartilhar.", "success");
-    });
   } catch (error) {
     if (error.message === "DATA_RESERVADA") {
       await loadBookings();
