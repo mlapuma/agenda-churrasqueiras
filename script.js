@@ -27,7 +27,16 @@ for (let house = 1; house <= 18; house += 1) {
   houseSelect.appendChild(option);
 }
 
-dateInput.min = new Date().toISOString().split("T")[0];
+function getTodayValue() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+dateInput.min = getTodayValue();
 
 function isSupabaseConfigured() {
   return Boolean(appConfig.SUPABASE_URL && appConfig.SUPABASE_ANON_KEY);
@@ -104,7 +113,8 @@ async function loadBookings() {
 
   try {
     syncStatus.textContent = "Sincronizando reservas online...";
-    const response = await fetch(`${appConfig.SUPABASE_URL}/rest/v1/churrasqueira_reservas?select=id,date,house,created_at&order=date.asc`, {
+    const today = getTodayValue();
+    const response = await fetch(`${appConfig.SUPABASE_URL}/rest/v1/churrasqueira_reservas?select=id,date,house,created_at&date=gte.${today}&order=date.asc`, {
       headers: getSupabaseHeaders()
     });
 
@@ -179,6 +189,7 @@ async function deleteBooking(booking) {
 
 function renderBookings() {
   bookingList.innerHTML = "";
+  bookings = bookings.filter((booking) => booking.date >= getTodayValue());
   sortBookings();
 
   emptyState.hidden = bookings.length > 0;
@@ -236,7 +247,7 @@ form.addEventListener("submit", async (event) => {
     const createdBooking = await createBooking(booking);
     await loadBookings();
     form.reset();
-    dateInput.min = new Date().toISOString().split("T")[0];
+    dateInput.min = getTodayValue();
     showMessage(`${house} agendada para ${formatDate(date)}.`);
     showReservationMessage(createdBooking);
   } catch (error) {
