@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda de Churrasqueiras - Condominio Terra Branca</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <section class="hero" aria-labelledby="titulo">
+      <div>
+        <p class="eyebrow">Condominio Terra Branca</p>
+        <h1 id="titulo">Agenda da Churrasqueira</h1>
+        <p class="subtitle">Selecione uma data, escolha a casa e registre o uso do salao da churrasqueira.</p>
+      </div>
+      <div class="status-box">
+        <span id="totalReservas">0</span>
+        <small>reservas cadastradas</small>
+      </div>
+    </section>
+
+    <section class="content">
+      <form class="booking-form" id="bookingForm">
+        <h2>Nova reserva</h2>
+
+        <label for="dataReserva">Data da reserva</label>
+        <input type="date" id="dataReserva" name="dataReserva" required>
+
+        <label for="casa">Casa</label>
+        <select id="casa" name="casa" required>
+          <option value="">Selecione uma casa</option>
+        </select>
+
+        <button type="submit">Agendar churrasqueira</button>
+        <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+      </form>
+
+      <section class="schedule" aria-labelledby="listaTitulo">
+        <div class="schedule-header">
+          <div>
+            <h2 id="listaTitulo">Reservas</h2>
+            <p>Lista das casas que usarao o salao da churrasqueira.</p>
+          </div>
+          <button class="ghost-button" id="limparReservas" type="button">Limpar lista</button>
+        </div>
+
+        <ul class="booking-list" id="bookingList"></ul>
+        <p class="empty-state" id="emptyState">Nenhuma reserva cadastrada ainda.</p>
+      </section>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
