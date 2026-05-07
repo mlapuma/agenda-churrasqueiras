@@ -12,6 +12,9 @@ const reservationMessage = document.getElementById("mensagemReserva");
 const copyMessageButton = document.getElementById("copiarMensagem");
 const closeMessageButton = document.getElementById("fecharMensagem");
 const okMessageButton = document.getElementById("okMensagem");
+const copyPanel = document.getElementById("copyPanel");
+const inlineReservationMessage = document.getElementById("mensagemReservaInline");
+const inlineCopyMessageButton = document.getElementById("copiarMensagemInline");
 
 const storageKey = "agendaChurrasqueiraReservas";
 const appConfig = window.APP_CONFIG || {};
@@ -71,11 +74,20 @@ function buildReservationMessage(booking) {
 }
 
 function showReservationMessage(booking) {
-  reservationMessage.value = buildReservationMessage(booking);
+  const message = buildReservationMessage(booking);
+
+  reservationMessage.value = message;
+  inlineReservationMessage.value = message;
   copyMessageButton.textContent = "Copiar mensagem";
+  inlineCopyMessageButton.textContent = "Copiar mensagem";
+  copyPanel.hidden = false;
   messageModal.hidden = false;
-  reservationMessage.focus();
-  reservationMessage.select();
+
+  setTimeout(() => {
+    inlineReservationMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+    inlineReservationMessage.focus();
+    inlineReservationMessage.select();
+  }, 100);
 }
 
 function closeReservationMessage() {
@@ -244,16 +256,24 @@ refreshButton.addEventListener("click", () => {
   loadBookings();
 });
 
-copyMessageButton.addEventListener("click", async () => {
-  reservationMessage.select();
+async function copyReservationMessage(source, button) {
+  source.select();
 
   try {
-    await navigator.clipboard.writeText(reservationMessage.value);
-    copyMessageButton.textContent = "Mensagem copiada";
+    await navigator.clipboard.writeText(source.value);
+    button.textContent = "Mensagem copiada";
   } catch (error) {
     document.execCommand("copy");
-    copyMessageButton.textContent = "Mensagem copiada";
+    button.textContent = "Mensagem copiada";
   }
+}
+
+copyMessageButton.addEventListener("click", () => {
+  copyReservationMessage(reservationMessage, copyMessageButton);
+});
+
+inlineCopyMessageButton.addEventListener("click", () => {
+  copyReservationMessage(inlineReservationMessage, inlineCopyMessageButton);
 });
 
 closeMessageButton.addEventListener("click", closeReservationMessage);

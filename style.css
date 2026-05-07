@@ -184,6 +184,17 @@ button {
   color: var(--accent);
 }
 
+.copy-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.copy-panel .copy-button {
+  width: 100%;
+  margin-top: 12px;
+}
+
 .schedule {
   padding: 24px;
 }

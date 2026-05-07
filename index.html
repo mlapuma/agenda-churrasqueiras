@@ -34,6 +34,12 @@
 
         <button type="submit">Agendar churrasqueira</button>
         <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
+
+        <div class="copy-panel" id="copyPanel" hidden>
+          <label for="mensagemReservaInline">Mensagem para copiar</label>
+          <textarea id="mensagemReservaInline" rows="5" readonly></textarea>
+          <button class="copy-button" id="copiarMensagemInline" type="button">Copiar mensagem</button>
+        </div>
       </form>
 
       <section class="schedule" aria-labelledby="listaTitulo">
