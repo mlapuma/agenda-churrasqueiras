@@ -114,6 +114,36 @@ async function createBooking(booking) {
   return createdBooking;
 }
 
+async function deleteBooking(booking) {
+  if (!confirm(`Deseja excluir a reserva da ${booking.house} em ${formatDate(booking.date)}?`)) {
+    return;
+  }
+
+  if (!isSupabaseConfigured()) {
+    bookings = bookings.filter((item) => item.id !== booking.id);
+    saveLocalBookings();
+    renderBookings();
+    showMessage("Reserva excluida.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${appConfig.SUPABASE_URL}/rest/v1/churrasqueira_reservas?id=eq.${booking.id}`, {
+      method: "DELETE",
+      headers: getSupabaseHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error("NAO_EXCLUIU");
+    }
+
+    await loadBookings();
+    showMessage("Reserva excluida.");
+  } catch (error) {
+    showMessage("Nao foi possivel excluir a reserva agora.", "error");
+  }
+}
+
 function renderBookings() {
   bookingList.innerHTML = "";
   sortBookings();
@@ -128,7 +158,13 @@ function renderBookings() {
     const info = document.createElement("div");
     info.innerHTML = `<strong>${booking.house}</strong><span>${formatDate(booking.date)}</span>`;
 
-    item.append(info);
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-button";
+    removeButton.textContent = "Excluir";
+    removeButton.addEventListener("click", () => deleteBooking(booking));
+
+    item.append(info, removeButton);
     bookingList.appendChild(item);
   });
 }

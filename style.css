@@ -210,6 +210,10 @@ button {
 }
 
 .booking-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
   padding: 16px;
   border: 1px solid var(--border);
   border-left: 5px solid var(--primary);
@@ -224,6 +228,16 @@ button {
 
 .booking-item span {
   color: var(--muted);
+}
+
+.remove-button {
+  min-width: 86px;
+  color: #ffffff;
+  background: var(--accent);
+}
+
+.remove-button:hover {
+  filter: brightness(0.94);
 }
 
 .empty-state {
@@ -276,7 +290,12 @@ button {
     display: grid;
   }
 
-  .ghost-button {
+  .booking-item {
+    grid-template-columns: 1fr;
+  }
+
+  .ghost-button,
+  .remove-button {
     width: 100%;
   }
 }

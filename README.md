@@ -36,6 +36,12 @@ on churrasqueira_reservas
 for insert
 to anon
 with check (true);
+
+create policy "Permitir exclusao publica"
+on churrasqueira_reservas
+for delete
+to anon
+using (true);
 ```
 
 3. Em Project Settings > API, copie:
