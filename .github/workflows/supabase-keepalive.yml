@@ -1,0 +1,41 @@
+name: Supabase Keep Alive
+
+on:
+  schedule:
+    - cron: "17 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Consultar banco Supabase
+        env:
+          SUPABASE_URL: https://jdjvkdjidttitupxoibi.supabase.co
+          SUPABASE_ANON_KEY: sb_publishable__C_VuLYtMuneK3HAgau2Sw_aYK9doll
+        run: |
+          set -euo pipefail
+
+          http_code=$(curl --silent --show-error \
+            --output response.json \
+            --write-out "%{http_code}" \
+            --retry 3 \
+            --retry-delay 5 \
+            --max-time 30 \
+            --header "apikey: ${SUPABASE_ANON_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL}/rest/v1/churrasqueira_reservas?select=id&limit=1")
+
+          cat response.json
+
+          if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
+            echo "Falha no keep-alive do Supabase. HTTP ${http_code}."
+            exit 1
+          fi
+
+          echo "Supabase acessado com sucesso. HTTP ${http_code}."
