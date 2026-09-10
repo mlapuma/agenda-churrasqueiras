@@ -3,79 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agenda de Churrasqueiras - Condominio Terra Branca</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Agenda da Churrasqueira - Fora do ar</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #f6f7f9, #e9edf2);
+      color: #1f2937;
+    }
+    .offline-card {
+      width: min(100%, 620px);
+      background: #fff;
+      border-radius: 22px;
+      padding: 44px 34px;
+      text-align: center;
+      box-shadow: 0 20px 55px rgba(17, 24, 39, .12);
+      border: 1px solid #e5e7eb;
+    }
+    .icon {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #fef2f2;
+      font-size: 42px;
+    }
+    .eyebrow {
+      margin: 0 0 10px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: #6b7280;
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(30px, 7vw, 44px);
+      line-height: 1.05;
+      color: #111827;
+    }
+    .message {
+      margin: 0 auto;
+      max-width: 480px;
+      font-size: 18px;
+      line-height: 1.6;
+      color: #4b5563;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 28px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #dc2626;
+    }
+    footer {
+      margin-top: 30px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    @media (max-width: 520px) {
+      .offline-card { padding: 36px 22px; border-radius: 18px; }
+      .message { font-size: 16px; }
+    }
+  </style>
 </head>
 <body>
-  <main class="app">
-    <section class="hero" aria-labelledby="titulo">
-      <div>
-        <p class="eyebrow">Condominio Terra Branca</p>
-        <h1 id="titulo">Agenda da Churrasqueira</h1>
-        <p class="subtitle">Selecione uma data, escolha a casa e registre o uso do salao da churrasqueira.</p>
-      </div>
-      <div class="status-box">
-        <span id="totalReservas">0</span>
-        <small>reservas cadastradas</small>
-      </div>
-    </section>
-
-    <section class="content">
-      <form class="booking-form" id="bookingForm">
-        <h2>Nova reserva</h2>
-
-        <label for="dataReserva">Data da reserva</label>
-        <input type="date" id="dataReserva" name="dataReserva" required>
-
-        <label for="casa">Casa</label>
-        <select id="casa" name="casa" required>
-          <option value="">Selecione uma casa</option>
-        </select>
-
-        <button type="submit">Agendar churrasqueira</button>
-        <p class="form-message" id="formMessage" role="status" aria-live="polite"></p>
-
-        <div class="copy-panel" id="copyPanel" hidden>
-          <label for="mensagemReservaInline">Mensagem para copiar</label>
-          <textarea id="mensagemReservaInline" rows="5" readonly></textarea>
-          <button class="copy-button" id="copiarMensagemInline" type="button">Copiar mensagem</button>
-        </div>
-      </form>
-
-      <section class="schedule" aria-labelledby="listaTitulo">
-        <div class="schedule-header">
-          <div>
-            <h2 id="listaTitulo">Reservas</h2>
-            <p id="syncStatus">Carregando reservas...</p>
-          </div>
-          <button class="ghost-button" id="atualizarReservas" type="button">Atualizar</button>
-        </div>
-
-        <ul class="booking-list" id="bookingList"></ul>
-        <p class="empty-state" id="emptyState">Nenhuma reserva cadastrada ainda.</p>
-      </section>
-    </section>
-  </main>
-
-  <div class="message-modal" id="messageModal" hidden>
-    <div class="message-dialog" role="dialog" aria-modal="true" aria-labelledby="messageTitle">
-      <div class="message-header">
-        <h2 id="messageTitle">Mensagem para o grupo</h2>
-        <button class="icon-button" id="fecharMensagem" type="button" aria-label="Fechar">x</button>
-      </div>
-
-      <label for="mensagemReserva">Copie e envie no grupo do condominio</label>
-      <textarea id="mensagemReserva" rows="5" readonly></textarea>
-
-      <div class="message-actions">
-        <button class="copy-button" id="copiarMensagem" type="button">Copiar mensagem</button>
-        <button class="ghost-button" id="okMensagem" type="button">Concluir</button>
-      </div>
+  <main class="offline-card" role="main" aria-labelledby="titulo">
+    <div class="icon" aria-hidden="true">🔥</div>
+    <p class="eyebrow">Condomínio Terra Branca</p>
+    <h1 id="titulo">Agenda temporariamente fora do ar</h1>
+    <p class="message">
+      O sistema de agendamento da churrasqueira está indisponível no momento.
+      Para novos agendamentos, utilize temporariamente o procedimento definido pelo condomínio.
+    </p>
+    <div class="status" aria-label="Sistema indisponível">
+      <span class="dot" aria-hidden="true"></span>
+      Sistema indisponível
     </div>
-  </div>
-
-  <script src="config.js"></script>
-  <script src="supabase-service.js"></script>
-  <script src="script.js"></script>
+    <footer>Agenda da Churrasqueira • Condomínio Terra Branca</footer>
+  </main>
 </body>
 </html>
